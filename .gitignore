@@ -1,0 +1,15 @@
+.DS_Store
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+backend/venv/
+backend/.env
+backend/data/uploads/*
+backend/data/indexes/*
+backend/data/outputs/*
+backend/data/chroma_db/*
+
+!backend/data/uploads/.gitkeep
+!backend/data/indexes/.gitkeep
+!backend/data/outputs/.gitkeep
