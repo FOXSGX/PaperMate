@@ -320,8 +320,8 @@ SERVER_PORT=8000
 
 如有问题或建议，欢迎通过以下方式联系我们：
 
-- **项目主页**：[GitHub - PaperMate](https://github.com/your-org/PaperMate)
-- **提交 Issue**：[GitHub Issues](https://github.com/your-org/PaperMate/issues)
+- **项目主页**：[GitHub - PaperMate](https://github.com/FOXSGX/PaperMate)
+- **提交 Issue**：[GitHub Issues](https://github.com/FOXSGX/PaperMate/issues)
 - **比赛信息**：2026年EL大赛 · AI智能体创新专项组
 
 ---
