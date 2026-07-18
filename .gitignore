@@ -13,3 +13,6 @@ backend/data/chroma_db/*
 !backend/data/uploads/.gitkeep
 !backend/data/indexes/.gitkeep
 !backend/data/outputs/.gitkeep
+
+# Frontend
+frontend/node_modules/
