@@ -14,6 +14,20 @@ router = APIRouter()
 rag_engine = RagEngine(settings.index_dir)
 
 
+def _extract_text(path: Path) -> str:
+    """将解析器返回的结构化文档适配为 RAG 索引所需的纯文本。"""
+    suffix = path.suffix.lower()
+    if suffix == ".pdf":
+        doc = parse_pdf(path)
+        return getattr(doc, "plain_text", None) or getattr(doc, "full_text", "") or str(doc)
+    if suffix == ".docx":
+        doc = parse_docx(path)
+        return getattr(doc, "plain_text", None) or getattr(doc, "full_text", "") or str(doc)
+    if suffix in {".txt", ".md"}:
+        return path.read_text(encoding="utf-8", errors="ignore")
+    raise HTTPException(status_code=400, detail=f"Unsupported file type: {suffix}")
+
+
 async def _process_single_file(file: UploadFile) -> UploadResponse:
     """Process a single uploaded file: save, parse, index."""
     try:
@@ -25,30 +39,27 @@ async def _process_single_file(file: UploadFile) -> UploadResponse:
     except ValueError as exc:
         raise HTTPException(status_code=413, detail=str(exc)) from exc
 
-    suffix = Path(path).suffix.lower()
     try:
-        if suffix == ".pdf":
-            text = parse_pdf(path)
-        elif suffix == ".docx":
-            text = parse_docx(path)
-        elif suffix in {".txt", ".md"}:
-            text = path.read_text(encoding="utf-8", errors="ignore")
-        else:
-            raise HTTPException(status_code=400, detail=f"Unsupported file type: {suffix}")
-    except RuntimeError as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+        text = _extract_text(Path(path))
+    except HTTPException:
+        raise
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Failed to parse file: {exc}") from exc
 
-    if not text.strip():
+    if not str(text).strip():
         raise HTTPException(status_code=422, detail="No readable text was extracted from the uploaded file.")
 
-    chunks = rag_engine.index_document(document_id=document_id, text=text, source=path.name)
+    chunks = rag_engine.index_document(document_id=document_id, text=str(text), source=Path(path).name)
     return UploadResponse(
         document_id=document_id,
-        filename=file.filename or path.name,
+        filename=file.filename or Path(path).name,
         content_type=file.content_type or "application/octet-stream",
         chunks=chunks,
         message="File uploaded and indexed successfully.",
     )
+
 
 
 @router.post("/upload", response_model=UploadResponse)

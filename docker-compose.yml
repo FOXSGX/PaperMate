@@ -4,10 +4,32 @@ services:
     working_dir: /app/backend
     command: >
       sh -c "pip install --no-cache-dir -r requirements.txt &&
-             uvicorn main:app --host 0.0.0.0 --port 8000"
+             uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
     ports:
       - "8000:8000"
     volumes:
       - ./backend:/app/backend
     env_file:
       - ./backend/.env.example
+    environment:
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=8000
+
+  # 可选：前端开发容器，浏览器访问 5173，/api 代理到 backend:8000
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
+    environment:
+      - VITE_BACKEND_URL=http://backend:8000
+      - VITE_PORT=5173
+    depends_on:
+      - backend
+
+volumes:
+  frontend_node_modules:

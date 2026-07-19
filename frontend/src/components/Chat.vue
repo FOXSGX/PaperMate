@@ -141,12 +141,8 @@ async function sendQuestion() {
   messages.value.push(assistantMsg)
 
   try {
-    // Try SSE streaming first
-    const response = await fetch(`/api/qa/stream`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ document_id: docId, question: q, top_k: 3 }),
-    })
+    // 与 api/index.js 同一基址（开发经 Vite 代理到 :8000）
+    const response = await askDocumentStream(docId, q, 3)
 
     const reader = response.body.getReader()
     const decoder = new TextDecoder()

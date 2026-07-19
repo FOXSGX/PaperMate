@@ -103,7 +103,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
-import { searchPapers } from '../api/index.js'
+import { searchPapers, generateSurvey } from '../api/index.js'
 
 const topic = ref('')
 const maxPapers = ref(5)
@@ -135,12 +135,8 @@ async function startGeneration() {
     const res = await searchPapers(topic.value.trim(), maxPapers.value)
     papers.value = res.data.papers || []
 
-    // Step 2: Generate survey via SSE
-    const response = await fetch(`/api/survey`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ topic: topic.value.trim(), max_papers: maxPapers.value }),
-    })
+    // Step 2: Generate survey via SSE（与 api 基址/代理一致）
+    const response = await generateSurvey(topic.value.trim(), maxPapers.value)
 
     const reader = response.body.getReader()
     const decoder = new TextDecoder()
@@ -160,7 +156,7 @@ async function startGeneration() {
           const data = JSON.parse(line.slice(6))
           if (data.done) break
           if (data.content) {
-            surveyContent.value += data.content
+            surveyContent.value += (surveyContent.value ? '\n\n' : '') + data.content
           }
         } catch { /* skip */ }
       }
