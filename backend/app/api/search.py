@@ -19,7 +19,7 @@ def search_papers(payload: SearchRequest) -> SearchResponse:
 @router.post("/survey")
 def generate_survey(payload: SurveyRequest) -> StreamingResponse:
     def event_stream():
-        for chunk in stream_survey(payload.topic, payload.max_papers):
+        for chunk in stream_survey(payload.topic, payload.max_papers, payload.outline_style):
             yield f"data: {json.dumps({'content': chunk}, ensure_ascii=False)}\n\n"
         yield f"data: {json.dumps({'done': True}, ensure_ascii=False)}\n\n"
 

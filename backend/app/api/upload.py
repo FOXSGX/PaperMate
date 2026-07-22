@@ -14,6 +14,28 @@ router = APIRouter()
 rag_engine = RagEngine(settings.index_dir)
 
 
+@router.get("/documents")
+def list_documents():
+    """List all indexed documents."""
+    return rag_engine.list_documents()
+
+
+@router.delete("/documents/{document_id}")
+def delete_document(document_id: str):
+    """Delete a document's index. Also removes uploaded file if present."""
+    # Remove uploaded file(s) matching this document_id
+    for f in Path(settings.upload_dir).glob(f"{document_id}.*"):
+        try:
+            f.unlink()
+        except OSError:
+            pass
+
+    deleted = rag_engine.delete_document(document_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Document index not found")
+    return {"detail": "Document deleted successfully", "document_id": document_id}
+
+
 def _extract_text(path: Path) -> str:
     """将解析器返回的结构化文档适配为 RAG 索引所需的纯文本。"""
     suffix = path.suffix.lower()

@@ -28,6 +28,7 @@ class SearchResponse(BaseModel):
 class SurveyRequest(BaseModel):
     topic: str = Field(..., min_length=2)
     max_papers: int = Field(default=5, ge=1, le=10)
+    outline_style: str = Field(default="standard", examples=["standard", "method", "timeline"])
 
 
 class UploadResponse(BaseModel):

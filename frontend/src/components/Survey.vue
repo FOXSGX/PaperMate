@@ -136,7 +136,7 @@ async function startGeneration() {
     papers.value = res.data.papers || []
 
     // Step 2: Generate survey via SSE（与 api 基址/代理一致）
-    const response = await generateSurvey(topic.value.trim(), maxPapers.value)
+    const response = await generateSurvey(topic.value.trim(), maxPapers.value, outlineStyle.value)
 
     const reader = response.body.getReader()
     const decoder = new TextDecoder()

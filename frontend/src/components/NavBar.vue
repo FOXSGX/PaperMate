@@ -55,6 +55,7 @@ const mobileOpen = ref(false)
 const navItems = [
   { path: '/', label: '首页', icon: '🏠' },
   { path: '/upload', label: '文件上传', icon: '📤' },
+  { path: '/documents', label: '文档管理', icon: '📚' },
   { path: '/chat', label: '智能问答', icon: '💬' },
   { path: '/survey', label: '综述生成', icon: '📝' },
   { path: '/format', label: '排版降重', icon: '✨' },

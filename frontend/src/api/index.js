@@ -43,8 +43,8 @@ export function searchPapers(keyword, maxResults = 5) {
   return api.post('/search', { keyword, max_results: maxResults })
 }
 
-export function generateSurvey(topic, maxPapers = 5) {
-  return postEventStream('/survey', { topic, max_papers: maxPapers })
+export function generateSurvey(topic, maxPapers = 5, outlineStyle = 'standard') {
+  return postEventStream('/survey', { topic, max_papers: maxPapers, outline_style: outlineStyle })
 }
 
 // ---- Files ----
@@ -64,6 +64,14 @@ export function uploadFiles(files, onProgress) {
     headers: { 'Content-Type': 'multipart/form-data' },
     onUploadProgress: onProgress,
   })
+}
+
+export function listDocuments() {
+  return api.get('/documents')
+}
+
+export function deleteDocument(documentId) {
+  return api.delete(`/documents/${documentId}`)
 }
 
 // ---- RAG QA ----

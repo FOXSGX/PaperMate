@@ -54,6 +54,38 @@ class RagEngine:
         )
         return answer, citations
 
+    def list_documents(self) -> list[dict]:
+        """List all indexed documents with metadata."""
+        docs = []
+        for path in sorted(self.index_dir.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True):
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+                doc_id = path.stem
+                chunks_count = len(data) if isinstance(data, list) else 0
+                source = data[0].get("source", "") if chunks_count > 0 else ""
+                docs.append({
+                    "document_id": doc_id,
+                    "filename": source,
+                    "chunks": chunks_count,
+                    "indexed_at": path.stat().st_mtime,
+                })
+            except (json.JSONDecodeError, KeyError, IndexError):
+                docs.append({
+                    "document_id": path.stem,
+                    "filename": "",
+                    "chunks": 0,
+                    "indexed_at": path.stat().st_mtime,
+                })
+        return docs
+
+    def delete_document(self, document_id: str) -> bool:
+        """Delete a document's index file. Returns True if deleted, False if not found."""
+        path = self._index_path(document_id)
+        if path.exists():
+            path.unlink()
+            return True
+        return False
+
     def _index_path(self, document_id: str) -> Path:
         return self.index_dir / f"{document_id}.json"
 
